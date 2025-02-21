@@ -1,11 +1,7 @@
-// SPDX-License-Identifier: GPL-2.0-only
-// Definitions for OV9281 camera module on VC I2C bus
 /dts-v1/;
-/plugin/;
 
-#include "gpio.h"
-#include "rockchip.h"
 / {
+
 	metadata {
 		title = "Enable OV9281 camera module on VC I2C bus";
 		compatible = "rockchip,rk3399";
@@ -13,61 +9,62 @@
 		exclusive = "mipi_dphy_rx0";
 		description = "Enable OV9281 camera module on VC I2C bus";
 	};
-};
 
-
-&{/} {
 	fragment@0 {
-		target-path = "/";
+		target-path = [2f 00];
 
 		__overlay__ {
-			camera_pwdn_gpio: camera-pwdn-gpio {
+
+			camera-pwdn-gpio {
 				status = "okay";
 				compatible = "regulator-fixed";
 				regulator-name = "camera_pwdn_gpio";
 				regulator-always-on;
 				regulator-boot-on;
 				enable-active-high;
-				gpio = <&gpio1 RK_PB5 GPIO_ACTIVE_HIGH>;
+				gpio = <0xffffffff 0x0d 0x00>;
 				pinctrl-names = "default";
-				pinctrl-0 = <&cam_pwdn_gpio>;
+				pinctrl-0 = <0x01>;
+				phandle = <0x07>;
 			};
 
-			clk_cam_25m: external-camera-clock-25m {
+			external-camera-clock-24m {
 				status = "okay";
 				compatible = "fixed-clock";
-				clock-frequency = <25000000>;
-				clock-output-names = "clk_cam_25m";
-				#clock-cells = <0>;
+				clock-frequency = <0x16e3600>;
+				clock-output-names = "clk_cam_24m";
+				#clock-cells = <0x00>;
+				phandle = <0x02>;
 			};
 		};
 	};
 
 	fragment@1 {
-		target = <&i2c4>;
+		target = <0xffffffff>;
 
 		__overlay__ {
 			status = "okay";
-			#address-cells = <1>;
-			#size-cells = <0>;
+			#address-cells = <0x01>;
+			#size-cells = <0x00>;
 
-			camera_ov5647: camera-ov5647@36 {
+			camera-ov9281@60 {
 				status = "okay";
-				compatible = "ovti,ov5647";
-				reg = <0x36>;
-
-				clocks = <&clk_cam_25m>;
-				clock-names = "xclk";
-
-				rockchip,camera-module-index = <0>;
+				compatible = "ovti,ov9281";
+				reg = <0x60>;
+				clocks = <0x02>;
+				clock-names = "xvclk";
+				rockchip,camera-module-index = <0x00>;
 				rockchip,camera-module-facing = "back";
-				rockchip,camera-module-name = "OV5647";
+				rockchip,camera-module-name = "OV9281";
 				rockchip,camera-module-lens-name = "default";
+				phandle = <0x08>;
 
 				port {
-					ucam_out0: endpoint {
-						remote-endpoint = <&mipi_in_ucam0>;
-						data-lanes = <1 2>;
+
+					endpoint {
+						remote-endpoint = <0x03>;
+						data-lanes = <0x01 0x02>;
+						phandle = <0x04>;
 					};
 				};
 			};
@@ -75,35 +72,37 @@
 	};
 
 	fragment@2 {
-		target = <&mipi_dphy_rx0>;
+		target = <0xffffffff>;
 
 		__overlay__ {
 			status = "okay";
 
 			ports {
-				#address-cells = <1>;
-				#size-cells = <0>;
+				#address-cells = <0x01>;
+				#size-cells = <0x00>;
 
 				port@0 {
-					reg = <0>;
-					#address-cells = <1>;
-					#size-cells = <0>;
+					reg = <0x00>;
+					#address-cells = <0x01>;
+					#size-cells = <0x00>;
 
-					mipi_in_ucam0: endpoint@1 {
-						reg = <1>;
-						remote-endpoint = <&ucam_out0>;
-						data-lanes = <1 2>;
+					endpoint@1 {
+						reg = <0x01>;
+						remote-endpoint = <0x04>;
+						data-lanes = <0x01 0x02>;
+						phandle = <0x03>;
 					};
 				};
 
 				port@1 {
-					reg = <1>;
-					#address-cells = <1>;
-					#size-cells = <0>;
+					reg = <0x01>;
+					#address-cells = <0x01>;
+					#size-cells = <0x00>;
 
-					dphy_rx0_out: endpoint@0 {
-						reg = <0>;
-						remote-endpoint = <&isp0_mipi_in>;
+					endpoint@0 {
+						reg = <0x00>;
+						remote-endpoint = <0x05>;
+						phandle = <0x06>;
 					};
 				};
 			};
@@ -111,7 +110,7 @@
 	};
 
 	fragment@3 {
-		target = <&isp0_mmu>;
+		target = <0xffffffff>;
 
 		__overlay__ {
 			status = "okay";
@@ -119,30 +118,120 @@
 	};
 
 	fragment@4 {
-		target = <&rkisp1_0>;
+		target = <0xffffffff>;
 
 		__overlay__ {
 			status = "okay";
 
 			port {
-				#address-cells = <1>;
-				#size-cells = <0>;
+				#address-cells = <0x01>;
+				#size-cells = <0x00>;
 
-				isp0_mipi_in: endpoint@0 {
-					reg = <0>;
-					remote-endpoint = <&dphy_rx0_out>;
+				endpoint@0 {
+					reg = <0x00>;
+					remote-endpoint = <0x06>;
+					phandle = <0x05>;
 				};
 			};
 		};
 	};
 
 	fragment@5 {
-		target = <&pinctrl>;
+		target = <0xffffffff>;
 
 		__overlay__ {
+
 			camera {
-				cam_pwdn_gpio: cam-pwdn-gpio {
-					rockchip,pins = <1 RK_PB5 RK_FUNC_GPIO &pcfg_pull_up>;
+
+				cam-pwdn-gpio {
+					rockchip,pins = <0x01 0x0d 0x00 0xffffffff>;
+					phandle = <0x01>;
+				};
+			};
+		};
+	};
+
+	__symbols__ {
+		camera_pwdn_gpio = "/fragment@0/__overlay__/camera-pwdn-gpio";
+		clk_cam_24m = "/fragment@0/__overlay__/external-camera-clock-24m";
+		ucam_out0 = "/fragment@1/__overlay__/camera-ov9281@60/port/endpoint";
+		mipi_in_ucam0 = "/fragment@2/__overlay__/ports/port@0/endpoint@1";
+		dphy_rx0_out = "/fragment@2/__overlay__/ports/port@1/endpoint@0";
+		isp0_mipi_in = "/fragment@4/__overlay__/port/endpoint@0";
+		cam_pwdn_gpio = "/fragment@5/__overlay__/camera/cam-pwdn-gpio";
+	};
+
+	__fixups__ {
+		gpio1 = "/fragment@0/__overlay__/camera-pwdn-gpio:gpio:0";
+		i2c4 = "/fragment@1:target:0";
+		mipi_dphy_rx0 = "/fragment@2:target:0";
+		isp0_mmu = "/fragment@3:target:0";
+		rkisp1_0 = "/fragment@4:target:0";
+		pinctrl = "/fragment@5:target:0";
+		pcfg_pull_up = "/fragment@5/__overlay__/camera/cam-pwdn-gpio:rockchip,pins:12";
+	};
+
+	__local_fixups__ {
+
+		fragment@0 {
+
+			__overlay__ {
+
+				camera-pwdn-gpio {
+					pinctrl-0 = <0x00>;
+				};
+			};
+		};
+
+		fragment@1 {
+
+			__overlay__ {
+
+				camera-ov9281@60 {
+					clocks = <0x00>;
+
+					port {
+
+						endpoint {
+							remote-endpoint = <0x00>;
+						};
+					};
+				};
+			};
+		};
+
+		fragment@2 {
+
+			__overlay__ {
+
+				ports {
+
+					port@0 {
+
+						endpoint@1 {
+							remote-endpoint = <0x00>;
+						};
+					};
+
+					port@1 {
+
+						endpoint@0 {
+							remote-endpoint = <0x00>;
+						};
+					};
+				};
+			};
+		};
+
+		fragment@4 {
+
+			__overlay__ {
+
+				port {
+
+					endpoint@0 {
+						remote-endpoint = <0x00>;
+					};
 				};
 			};
 		};
